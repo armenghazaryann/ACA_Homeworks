@@ -40,4 +40,5 @@ class SpectralClustering:
 
         indices = np.argsort(eigenvalues)[:self.k]
         X_new = eigenvectors[:, indices]
-        return self.kmeans.predict(eigenvectors)
+        
+        return self.kmeans.predict(X_new)
