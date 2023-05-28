@@ -50,10 +50,9 @@ class DenseNetwork:
             activation = layer['activation']
             inputs = self.layers[i - 1]['output'] if i > 0 else self.layers[i]['inputs']
             if activation == 'relu':
-                grad *= np.where(inputs > 0, 1, 0)
+                grad *= self.relu_derivative(inputs)
             elif activation == 'sigmoid':
-                sigmoid_inputs = 1 / (1 + np.exp(-inputs))
-                grad *= sigmoid_inputs * (1 - sigmoid_inputs)
+                grad *= self.sigmoid_derivative(-inputs)
             layer['grad_weights'] = np.dot(inputs.T, grad)
             layer['grad_biases'] = np.sum(grad, axis=0, keepdims=True)
             grad = np.dot(grad, layer['weights'].T)
@@ -77,9 +76,9 @@ class DenseNetwork:
                     activation = layer['activation']
                     inputs = np.dot(inputs, weights) + biases
                     if activation == 'relu':
-                        inputs = np.maximum(0, inputs)
+                        inputs = self.relu(0, inputs)
                     elif activation == 'sigmoid':
-                        inputs = 1 / (1 + np.exp(-inputs))
+                        inputs = self.sigmoid(-inputs)
                     layer['output'] = inputs
 
                 # Compute loss
@@ -108,8 +107,8 @@ class DenseNetwork:
                 activation = layer['activation']
                 inputs = np.dot(inputs, weights) + biases
                 if activation == 'relu':
-                    inputs = np.maximum(0, inputs)
+                    inputs = self.relu(inputs)
                 elif activation == 'sigmoid':
-                    inputs = 1 / (1 + np.exp(-inputs))
+                    inputs = self.sigmoid(-inputs)
             predictions.append(inputs.squeeze())
         return np.array(predictions)
